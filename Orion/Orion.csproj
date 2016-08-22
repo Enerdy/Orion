@@ -73,9 +73,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authorization\IGroupService.cs" />
+    <Compile Include="Authorization\IPermissionService.cs" />
     <Compile Include="Authorization\IUserAccountService.cs" />
     <Compile Include="Authorization\PlainTextAccountService.cs" />
     <Compile Include="Authorization\PlainTextGroup.cs" />
+    <Compile Include="Authorization\PlainTextPermission.cs" />
+    <Compile Include="Authorization\PlainTextPermissionService.cs" />
     <Compile Include="Authorization\PlainTextUserAccount.cs" />
     <Compile Include="Configuration\YamlFileConfigurationService.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />

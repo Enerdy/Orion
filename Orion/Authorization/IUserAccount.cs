@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 
 namespace Orion.Authorization
@@ -27,7 +26,7 @@ namespace Orion.Authorization
 		bool MemberOf(IGroup group);
 
 		/// <summary>
-		/// Gets all permissions in all groups this user is a member of.
+		/// Gets all permissions this user was granted, including those inherited from groups.
 		/// </summary>
 		IEnumerable<IPermission> Permissions { get; }
 
@@ -35,9 +34,8 @@ namespace Orion.Authorization
 		/// Determines whether this user has the specified permission.
 		/// </summary>
 		/// <param name="permission">The <see cref="IPermission"/> to check.</param>
-		/// <param name="inherit">Whether or not to include permissions inherited from parent groups.</param>
 		/// <returns>true if the user has the permission, false otherwise.</returns>
-		bool HasPermission(IPermission permission, bool inherit = true);
+		bool HasPermission(IPermission permission);
 
 		/// <summary>
 		/// Authenticates a login attempt to this account by the specified clear-text <paramref name="password"/>.

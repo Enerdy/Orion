@@ -6,9 +6,8 @@ using Orion.Framework;
 namespace Orion.Authorization
 {
 	/// <summary>
-	/// Service Definition: UserAccountService.
-	/// 
-	/// Controls access to user accounts, groups and permissions.
+	/// Provides a mechanism for managing <see cref="IUserAccount"/> instances.
+	/// Controls access to user accounts.
 	/// </summary>
 	public interface IUserAccountService : ISharedService
 	{
@@ -20,9 +19,9 @@ namespace Orion.Authorization
 		/// </param>
 		/// <returns>
 		/// An enumerable of <see cref="IUserAccount"/> objects satisfying the supplied predicate.  If no predicate
-		/// is specified, an enumerable of all user accounts are returned.
+		/// is specified, an enumerable of all user accounts is returned.
 		/// </returns>
-		IEnumerable<IUserAccount> Find(Predicate<IUserAccount> predicate = null);
+		IEnumerable<IUserAccount> FindAccounts(Predicate<IUserAccount> predicate = null);
 
 		/// <summary>
 		/// Returns a user account by the specified account name, or a default value if one cannot be found.

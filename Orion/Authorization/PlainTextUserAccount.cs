@@ -10,7 +10,7 @@ using Orion.Extensions;
 namespace Orion.Authorization
 {
 	/// <summary>
-	/// Plain-text user account used by the <see cref="PlainTextAccountService"/>.
+	/// Plain text user account used by the <see cref="PlainTextAccountService"/>.
 	/// </summary>
 	public class PlainTextUserAccount : IUserAccount
 	{
@@ -66,8 +66,7 @@ namespace Orion.Authorization
 		/// A reference to the <see cref="PlainTextAccountService"/> which owns this user account.
 		/// </param>
 		/// <param name="accountName">A string containing the account name to load from disk.</param>
-		public PlainTextUserAccount(PlainTextAccountService service, string accountName)
-			: this(service)
+		public PlainTextUserAccount(PlainTextAccountService service, string accountName) : this(service)
 		{
 			AccountName = accountName;
 
@@ -86,8 +85,7 @@ namespace Orion.Authorization
 		/// A reference to the <see cref="PlainTextAccountService"/> which owns this user account.
 		/// </param>
 		/// <param name="stream">The I/O stream to load the <see cref="PlainTextUserAccount"/> data from.</param>
-		public PlainTextUserAccount(PlainTextAccountService service, Stream stream)
-			: this(service)
+		public PlainTextUserAccount(PlainTextAccountService service, Stream stream) : this(service)
 		{
 			StreamIniDataParser parser = new StreamIniDataParser();
 
@@ -97,16 +95,16 @@ namespace Orion.Authorization
 		/// <inheritdoc/>
 		public bool MemberOf(IGroup group)
 		{
-			throw new NotImplementedException();
+			return group.HasMember(this);
 		}
 
 		/// <inheritdoc/>
 		public IEnumerable<IPermission> Permissions { get; }
 
 		/// <inheritdoc/>
-		public bool HasPermission(IPermission permission, bool inherit = true)
+		public bool HasPermission(IPermission permission)
 		{
-			throw new NotImplementedException();
+			return permission.HasPermission(this);
 		}
 
 		/// <inheritdoc/>

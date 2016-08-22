@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using Orion.Framework;
 using System.Collections.Generic;
 
 namespace Orion.Authorization
 {
 	/// <summary>
-	/// Service definition: GroupService.
-	/// 
-	/// Groups link lists of accounts together which has a common set of permissions and properties
-	/// set against them.
+	/// Provides a mechanism for managing <see cref="IGroup"/> instances.
+	/// A group is a collection of settings shared between its members.
 	/// </summary>
 	public interface IGroupService : ISharedService
 	{
@@ -33,7 +30,7 @@ namespace Orion.Authorization
 		/// An enumerable of all <see cref="IGroup"/> instances matching the specified <paramref name="predicate"/>.
 		/// If no predicate expression was specified, returns all groups.
 		/// </returns>
-		IEnumerable<IGroup> Find(Predicate<IGroup> predicate = null);
+		IEnumerable<IGroup> FindGroups(Predicate<IGroup> predicate = null);
 
 		/// <summary>
 		/// Adds a group with the specified group name to the service, optionally with an initial list of members.
@@ -60,5 +57,14 @@ namespace Orion.Authorization
 		/// </param>
 		/// <param name="userAccounts">A list of user account objects to add to the specified group.</param>
 		void AddMembers(IGroup group, params IUserAccount[] userAccounts);
+
+		/// <summary>
+		/// Ensures each permission in the specified list of permissions is added to the specified group.
+		/// </summary>
+		/// <param name="group">
+		/// A reference to the group object to add permissions to.
+		/// </param>
+		/// <param name="permissions">A list of permission objects to add to the specified group.</param>
+		void AddPermissions(IGroup group, params IPermission[] permissions);
 	}
 }

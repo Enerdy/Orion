@@ -1,20 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using IniParser;
 using IniParser.Model;
 using Orion.Extensions;
-using Orion.Players;
 
 namespace Orion.Authorization
 {
 	/// <summary>
-	/// Plain-text user group used by the <see cref="PlainTextAccountService"/>.
+	/// Plain text user group used by the <see cref="PlainTextAccountService"/>.
 	/// </summary>
 	public class PlainTextGroup : IGroup
 	{
 		private IniData _iniData;
 		private PlainTextAccountService _service;
+
+		private List<IUserAccount> _members;
+		private List<IPermission> _permissions;
 
 		/// <inheritdoc/>
 		public string Name
@@ -45,10 +49,10 @@ namespace Orion.Authorization
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<IUserAccount> Members { get; }
+		public IEnumerable<IUserAccount> Members => _members;
 
 		/// <inheritdoc/>
-		public IEnumerable<IPermission> Permissions { get; }
+		public IEnumerable<IPermission> Permissions => _permissions;
 
 		/// <summary>
 		/// Gets the computed group file path based on the group name.
@@ -67,7 +71,6 @@ namespace Orion.Authorization
 			this._iniData = new IniData();
 
 			this._iniData.Sections.AddSection("Group");
-			this._iniData.Sections.AddSection("Membership");
 		}
 
 		/// <summary>
@@ -88,6 +91,8 @@ namespace Orion.Authorization
 			{
 				_iniData = new StreamIniDataParser().ReadData(sr);
 			}
+
+			LoadCollections();
 		}
 
 		/// <summary>
@@ -104,24 +109,85 @@ namespace Orion.Authorization
 			{
 				_iniData = new StreamIniDataParser().ReadData(sr);
 			}
+
+			LoadCollections();
+		}
+
+		private void LoadCollections()
+		{
+			_members = new List<IUserAccount>();
+			foreach (string s in _iniData.Sections["Group"]["Members"].Split(','))
+			{
+				var userAccount = _service.GetUserAccountOrDefault(s);
+				if (userAccount != null)
+				{
+					_members.Add(userAccount);
+				}
+			}
+
+			_permissions = new List<IPermission>();
+			foreach (string s in _iniData.Sections["Group"]["Permissions"].Split(','))
+			{
+				var permission = .FromNode(s);
+				if (permission != null)
+				{
+					_permissions.Add(permission);
+				}
+			}
 		}
 
 		/// <inheritdoc/>
-		public IUserAccount AddMember(IUserAccount userAccount)
+		public void AddMember(IUserAccount userAccount)
 		{
-			throw new System.NotImplementedException();
+			if (!_members.Contains(userAccount))
+			{
+				_members.Add(userAccount);
+				_iniData.Sections["Group"]["Members"] = String.Join(",", _members.Select(u => u.AccountName));
+				Save();
+			}
 		}
 
 		/// <inheritdoc/>
-		public void RemoveMember(IUserAccount player)
+		public void RemoveMember(IUserAccount userAccount)
 		{
-			throw new System.NotImplementedException();
+			if (_members.Remove(userAccount))
+			{
+				_iniData.Sections["Group"]["Members"] = String.Join(",", _members.Select(u => u.AccountName));
+				Save();
+			}
 		}
 
 		/// <inheritdoc/>
-		public bool HasMember(IUserAccount player)
+		public bool HasMember(IUserAccount userAccount)
 		{
-			throw new System.NotImplementedException();
+			return _members.Contains(userAccount);
+		}
+
+		/// <inheritdoc/>
+		public void AddPermission(IPermission permission)
+		{
+			if (!_permissions.Contains(permission))
+			{
+				_permissions.Add(permission);
+				_iniData.Sections["Group"]["Permissions"] = String.Join(",", _permissions);
+				Save();
+			}
+		}
+
+		/// <inheritdoc/>
+		public void RemovePermission(IPermission permission)
+		{
+			if (_permissions.Remove(permission))
+			{
+				_iniData.Sections["Group"]["Permissions"] = String.Join(",", _permissions);
+				Save();
+			}
+		}
+
+		/// <inheritdoc/>
+		public bool HasPermission(IPermission permission)
+		{
+			return _permissions.Contains(permission);
 		}
 
 		/// <summary>
@@ -141,11 +207,9 @@ namespace Orion.Authorization
 		/// <param name="stream">The <see cref="Stream"/> to save the data to.</param>
 		public void ToStream(Stream stream)
 		{
-			var parser = new StreamIniDataParser();
-
 			using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen: true))
 			{
-				parser.WriteData(sw, _iniData);
+				new FileIniDataParser().WriteData(sw, _iniData);
 			}
 		}
 	}

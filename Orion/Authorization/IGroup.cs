@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Orion.Players;
+﻿using System.Collections.Generic;
 
 namespace Orion.Authorization
 {
@@ -35,12 +33,10 @@ namespace Orion.Authorization
 
 		/// <summary>
 		/// Adds an <see cref="IUserAccount"/> to this group's list of members.
+		/// Does nothing if the user is already a member of this group.
 		/// </summary>
 		/// <param name="userAccount">The user account to add.</param>
-		/// <exception cref="InvalidOperationException">
-		/// Thrown when the <paramref name="userAccount"/> already exists.
-		/// </exception>
-		IUserAccount AddMember(IUserAccount userAccount);
+		void AddMember(IUserAccount userAccount);
 
 		/// <summary>
 		/// Removes an <see cref="IUserAccount"/> from this group's list of members.
@@ -54,5 +50,25 @@ namespace Orion.Authorization
 		/// <param name="userAccount">The user account to check.</param>
 		/// <returns>true if the group contains the <paramref name="userAccount"/>, false otherwise.</returns>
 		bool HasMember(IUserAccount userAccount);
+
+		/// <summary>
+		/// Adds an <see cref="IPermission"/> to this group's permissions.
+		/// Does nothing if the group already has this permission.
+		/// </summary>
+		/// <param name="permission">The permission to add.</param>
+		void AddPermission(IPermission permission);
+
+		/// <summary>
+		/// Removes an <see cref="IPermission"/> from this group's permissions.
+		/// </summary>
+		/// <param name="permission">A reference to the permission to remove.</param>
+		void RemovePermission(IPermission permission);
+
+		/// <summary>
+		/// Determines whether this group has the specified permission.
+		/// </summary>
+		/// <param name="permission">The <see cref="IPermission"/> to check.</param>
+		/// <returns>true if the group has the permission, false otherwise.</returns>
+		bool HasPermission(IPermission permission);
 	}
 }

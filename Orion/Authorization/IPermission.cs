@@ -10,7 +10,7 @@ namespace Orion.Authorization
 	public interface IPermission
 	{
 		/// <summary>
-		/// Gets the permission name.  Must not contain any period (".") characters.
+		/// Gets the permission name. Must not contain any period (".") characters.
 		/// </summary>
 		string Name { get; }
 
@@ -31,22 +31,17 @@ namespace Orion.Authorization
 		IPermission Parent { get; }
 
 		/// <summary>
-		/// Gets all the permission objects that are listed as children of this permission.
+		/// Determines whether the specified user has this permission, or optionally any parent permission.
 		/// </summary>
-		IEnumerable<IPermission> ChildPermissions { get; }
-
-		/// <summary>
-		/// Determines whether the specified player has this permission, or optionally any parent permission.
-		/// </summary>
-		/// <param name="player">
-		/// A reference to a player object to check for permissions.
+		/// <param name="userAccount">
+		/// A reference to a user account object to check for permissions.
 		/// </param>
 		/// <param name="inherit">
 		/// (optional) A flag indicating whether to check all parents of this permission for authorization.
 		/// </param>
 		/// <returns>
-		/// true if the player has this permission, or optionally any parent permission, false otherwise.
+		/// true if the user has this permission, or optionally any parent permission, false otherwise.
 		/// </returns>
-		bool HasPermission(IPlayer player, bool inherit = true);
+		bool HasPermission(IUserAccount userAccount, bool inherit = true);
 	}
 }

@@ -12,6 +12,8 @@ namespace Orion.Authorization
 	/// </summary>
 	public class PlainTextAccountService : SharedService, IUserAccountService, IGroupService
 	{
+		private List<PlainTextGroup> _groups;
+
 		/// <summary>
 		/// The path to where <see cref="PlainTextUserAccount"/> objects are stored.
 		/// </summary>
@@ -27,10 +29,20 @@ namespace Orion.Authorization
 		{
 			Directory.CreateDirectory(UserPathPrefix);
 			Directory.CreateDirectory(GroupPathPrefix);
+
+			// Load groups
+			_groups = new List<PlainTextGroup>();
+			foreach (var filePath in Directory.GetFiles(GroupPathPrefix, "*.ini"))
+			{
+				using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+				{
+					_groups.Add(new PlainTextGroup(this, fs));
+				}
+			}
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<IUserAccount> Find(Predicate<IUserAccount> predicate = null)
+		public IEnumerable<IUserAccount> FindAccounts(Predicate<IUserAccount> predicate = null)
 		{
 			foreach (var filePath in Directory.GetFiles(UserPathPrefix, "*.ini"))
 			{
@@ -137,24 +149,14 @@ namespace Orion.Authorization
 		public IGroup AnonymousGroup { get; }
 
 		/// <inheritdoc/>
-		public IEnumerable<IGroup> Find(Predicate<IGroup> predicate)
+		public IEnumerable<IGroup> FindGroups(Predicate<IGroup> predicate = null)
 		{
-			foreach (var filePath in Directory.GetFiles(GroupPathPrefix, "*.ini"))
+			if (predicate == null)
 			{
-				using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-				{
-					PlainTextGroup group = new PlainTextGroup(this, fs);
-
-					if (predicate == null)
-					{
-						yield return group;
-					}
-					else if (predicate(group))
-					{
-						yield return group;
-					}
-				}
+				return _groups;
 			}
+
+			return _groups.FindAll(predicate);
 		}
 
 		/// <inheritdoc/>
@@ -170,7 +172,7 @@ namespace Orion.Authorization
 
 			groupPath = Path.Combine(GroupPathPrefix, $"{groupName.Slugify()}.ini");
 
-			if (File.Exists(groupPath))
+			if (_groups.Exists(g => g.Name == groupName) || File.Exists(groupPath))
 			{
 				throw new InvalidOperationException($"Group by the name of {groupName} already exists.");
 			}
@@ -188,6 +190,7 @@ namespace Orion.Authorization
 				}
 			}
 
+			_groups.Add(group);
 			using (FileStream fs = new FileStream(groupPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
 			{
 				group.ToStream(fs);
@@ -201,11 +204,18 @@ namespace Orion.Authorization
 		{
 			string groupPath = Path.Combine(GroupPathPrefix, $"{group.Name.Slugify()}.ini");
 
+			_groups.Remove((PlainTextGroup)group);
 			File.Delete(groupPath);
 		}
 
 		/// <inheritdoc/>
 		public void AddMembers(IGroup group, params IUserAccount[] userAccounts)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <inheritdoc/>
+		public void AddPermissions(IGroup group, params IPermission[] permissions)
 		{
 			throw new NotImplementedException();
 		}
